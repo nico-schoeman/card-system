@@ -4,13 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "es-dev-server --app-index index.html --node-resolve --watch --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "auth": "npm login --registry=https://npm.pkg.github.com/",
-		"publish": "npm publish"
+    "publish": "npm publish"
   },
   "author": "Nico Schoeman",
   "license": "ISC",
+  "dependencies": {
+    "@nico-schoeman/data-store": "^1.0.3",
+    "@nico-schoeman/event-bus": "^1.0.2",
+    "lit-html": "^1.2.1"
+  },
+  "devDependencies": {
+    "es-dev-server": "^1.57.3"
+  },
   "publishConfig": {
-		"registry": "https://npm.pkg.github.com/"
-	}
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
