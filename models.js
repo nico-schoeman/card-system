@@ -10,6 +10,7 @@ export function Stats () {
 export function Card () {
   this.id = 'card_' + id_counter++;
   this.name = "card";
+  this.tags = [];
   this.image = new Image();
   this.image.src = 'images/cultist.svg';
   this.stats = {

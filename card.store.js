@@ -1,30 +1,36 @@
-import { store } from './store';
-import { BasicCard } from './card.factory';
+import DataStore from '@nico-schoeman/data-store';
+
+export default function CardStore() {
+	this.store =  new DataStore();
+
+  this.store.set('deck', []);
+	this.store.set('draw', []);
+	this.store.set('discard', []);
+	this.store.set('grave', []);
+	this.store.set('hand', []);
+  this.store.set('active-card', null);
+}
 
 Array.prototype.pickRandom = function() {
 	return this[Math.floor(Math.random() * this.length)];
 };
 
-export function randomCard() {
-	return Object.values(store.get('all-cards')).pickRandom()();
+CardStore.prototype.randomCard = function () {
+	return Object.values(this.store.get('all-cards')).pickRandom()();
 }
 
-export function setupCardState() {
-	let deck = [randomCard(), randomCard()];
-	store.set('deck', deck);
-	store.set('draw', []);
-	store.set('discard', []);
-	store.set('grave', []);
-	store.set('hand', []);
-  store.set('active-card', null);
+CardStore.prototype.addCardToDeck = function (card) {
+  let deck = this.store.get('deck');
+  deck.push(card);
+  this.store.set('deck', [...deck]);
 }
 
-export function setDraw(deck = store.get('deck')) {
-	store.set('draw', deck);
+CardStore.prototype.setDraw = function(deck = this.store.get('deck')) {
+	this.store.set('draw', [...deck]);
 }
 
-export function shuffleDraw() {
-	let draw = store.get('draw');
+CardStore.prototype.shuffleDraw = function () {
+	let draw = this.store.get('draw');
 
 	for (let i = draw.length - 1; i > 0; i--) {
 		let j = Math.floor(Math.random() * i);
@@ -33,14 +39,14 @@ export function shuffleDraw() {
 		draw[j] = temp;
 	}
 
-  store.set('draw', draw);
+  this.store.set('draw', [...draw]);
 }
 
-export function drawUntil (count) {
-  let draw = store.get('draw');
-  let hand = store.get('hand');
+CardStore.prototype.drawUntil = function (count) {
+  let draw = this.store.get('draw');
+  let hand = this.store.get('hand');
 
-  while (hand.length < count - 1) {
+  while (hand.length < count) {
     if (draw.length) {
       hand.push(draw.pop());
     } else {
@@ -48,65 +54,85 @@ export function drawUntil (count) {
     }
   }
 
-  store.set('draw', draw);
-  store.set('hand', hand);
+  this.store.set('draw', [...draw]);
+  this.store.set('hand', [...hand]);
 }
 
-export function drawAmount(amount) {
-  let draw = store.get('draw');
-  let hand = store.get('hand');
+CardStore.prototype.drawAmount = function (amount) {
+  let draw = this.store.get('draw');
+  let hand = this.store.get('hand');
 
   for (let i = 0; i < amount; i++) {
     if (draw.length)
     hand.push(draw.pop());
   }
 
-  store.set('draw', draw);
-  store.set('hand', hand);
+  this.store.set('draw', [...draw]);
+  this.store.set('hand', [...hand]);
 }
 
-export function discardCardFromHand (card) {
-  let discard = store.get('discard');
-  let hand = store.get('hand');
+CardStore.prototype.discard = function (arrayName, card) {
+  let discard = this.store.get('discard');
+  let target = this.store.get(arrayName);
 
-  hand.filter(item => item.id != card.id);
+  target = target.filter(item => item.id != card.id);
   discard.push(card);
 
-  store.set('discard', discard);
-  store.set('hand', hand);
+  this.store.set('discard', [...discard]);
+  this.store.set(arrayName, [...target]);
 }
 
-export function discardCardsFronHand (cards) {
-
+CardStore.prototype.discardFromHand = function (cards = []) {
+  cards.forEach(card => {
+    this.discard('hand', card);
+  });
 }
 
-export function discardRandomCardsFromHand (amount) {
-
+CardStore.prototype.discardFromHandRandom = function (amount) {
+  for (let index = 0; index < amount; index++) {
+    let hand = this.store.get('hand');
+    this.discard('hand', hand.pickRandom());
+  }
 }
 
-export function discardCardFromDraw (card) {
-
+CardStore.prototype.discardFronDraw = function (cards = []) {
+  cards.forEach(card => {
+    this.discard('draw', card);
+  });
 }
 
-export function discardCardsFronDraw (cards) {
-
+CardStore.prototype.discardFromDrawRandom  = function (amount) {
+  for (let index = 0; index < amount; index++) {
+    let draw = this.store.get('draw');
+    this.discard('draw', draw.pickRandom());
+  }
 }
 
-export function discardRandomCardsFromDraw (amount) {
+CardStore.prototype.refresh = function (arrayName, card) {
+  let draw = this.store.get('draw');
+  let target = this.store.get(arrayName);
 
+  target = target.filter(item => item.id != card.id);
+  draw.push(card);
+
+  this.store.set('draw', [...draw]);
+  this.store.set(arrayName, [...target]);
 }
 
-export function refreshDrawFromDiscard (amount) {
-
+CardStore.prototype.refreshDrawFromDiscard = function (amount) {
+  for (let index = 0; index < amount; index++) {
+    let discard = this.store.get('discard');
+    this.refresh('discard', discard.pickRandom());
+  }
 }
 
-export function setActiveCard(card) {
-  let current = store.get('active-card');
-  store.set('active-card', current&&current.id==card.id? null : card);
+CardStore.prototype.setActiveCard = function (card) {
+  let current = this.store.get('active-card');
+  this.store.set('active-card', current&&current.id==card.id? null : card);
 }
 
-export let selectDeck = () => store.get('deck');
-export let selectDraw = () => store.get('draw');
-export let selectDiscard = () => store.get('discard');
-export let selectHand = () => store.get('hand');
-export let selectActiveCard = () => store.get('active-card');
+CardStore.prototype.selectDeck = () => this.store.get('deck');
+CardStore.prototype.selectDraw = () => this.store.get('draw');
+CardStore.prototype.selectDiscard = () => this.store.get('discard');
+CardStore.prototype.selectHand = () => this.store.get('hand');
+CardStore.prototype.selectActiveCard = () => this.store.get('active-card');

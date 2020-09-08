@@ -8,6 +8,30 @@
   <script type="module" src="./index.js"></script>
 </head>
 <body>
-  <c-hand></c-hand>
+
+
+  <script type="module">
+    import { CardStore } from './index.js';
+    import DataStore from '@nico-schoeman/data-store';
+    import { BasicCard } from './card.factory.js';
+
+    const store = new DataStore();
+
+    let cs = new CardStore();
+
+    store.set('cards', cs);
+
+    for (let index = 0; index < 30; index++) {
+      cs.addCardToDeck(new BasicCard());
+    }
+
+    cs.setDraw();
+    cs.shuffleDraw();
+    cs.drawUntil(5);
+    cs.discardFromHandRandom(3);
+
+    console.log(cs);
+    console.log(store);
+  </script>
 </body>
 </html>

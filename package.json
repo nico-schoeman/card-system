@@ -19,6 +19,7 @@
   "devDependencies": {
     "es-dev-server": "^1.57.3"
   },
+  "repository": "git://github.com/nico-schoeman/card-system.git",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   }

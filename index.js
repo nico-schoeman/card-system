@@ -1,5 +1,3 @@
-import { store } from './store.js';
+//import './components/hand.js';
 
-import './components/hand.js';
-
-export * from './card.store.js';
+export {default as CardStore} from './card.store.js';
