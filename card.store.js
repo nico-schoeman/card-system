@@ -1,7 +1,7 @@
 import DataStore from '@nico-schoeman/data-store';
 
 export default function CardStore() {
-	this.store =  new DataStore();
+	this.store = new DataStore();
 
   this.store.set('deck', []);
 	this.store.set('draw', []);
@@ -95,7 +95,7 @@ CardStore.prototype.discardFromHandRandom = function (amount) {
   }
 }
 
-CardStore.prototype.discardFronDraw = function (cards = []) {
+CardStore.prototype.discardFromDraw = function (cards = []) {
   cards.forEach(card => {
     this.discard('draw', card);
   });
@@ -131,8 +131,18 @@ CardStore.prototype.setActiveCard = function (card) {
   this.store.set('active-card', current&&current.id==card.id? null : card);
 }
 
-CardStore.prototype.selectDeck = () => this.store.get('deck');
-CardStore.prototype.selectDraw = () => this.store.get('draw');
-CardStore.prototype.selectDiscard = () => this.store.get('discard');
-CardStore.prototype.selectHand = () => this.store.get('hand');
-CardStore.prototype.selectActiveCard = () => this.store.get('active-card');
+CardStore.prototype.selectDeck = function () {
+  return this.store.get('deck');
+}
+CardStore.prototype.selectDraw = function () {
+  return this.store.get('draw');
+}
+CardStore.prototype.selectDiscard = function () {
+  return this.store.get('discard');
+}
+CardStore.prototype.selectHand = function () {
+  return this.store.get('hand');
+}
+CardStore.prototype.selectActiveCard = function () {
+  return this.store.get('active-card');
+}

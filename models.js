@@ -19,9 +19,7 @@ export function Card () {
   this.tooltips = [
     new Tooltip('test', 'test')
   ];
-  this.effects = [(context) => {
-    console.log('can do action');
-  }];
+  this.effects = [];
   this.action = (context) => {
     console.log("action:", this, this.id, this.name);
     this.effects.forEach(effect => {
