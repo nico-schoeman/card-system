@@ -12,34 +12,44 @@
 			import { html, render } from 'lit-html/lit-html.js';
 			import { CardStore } from './index.js';
 			import DataStore from '@nico-schoeman/data-store';
-			import { BasicCard } from './card.factory.js';
+			import CardFactory from './card.factory.js';
 
 			const store = new DataStore();
 
-			let cs = new CardStore();
+			let cardStore = new CardStore();
 			let tokenStore = new DataStore();
 
-			store.set('cards', cs);
+      store.set('cards', cardStore);
 			store.set('tokens', tokenStore);
 
+      let factory = new CardFactory();
+
+      factory.addAction('drawUntil', (context) => {
+        console.log('drawUntil');
+        cardStore.drawUntil(context.card.stats.draw);
+      }, 'DRAW until you have [draw] cards.');
+
+      factory.addCheck('cardsLessThan', (context) => {
+        console.log('cardsLessThan');
+        if (cardStore.selectHand().length < context.card.stats.drawmin) return true;
+        return false;
+      }, 'if you have less than [drawmin] cards');
+
+      factory.addTip('DRAW', 'draw a card from your draw pile', 'RED');
+
 			for (let index = 0; index < 30; index++) {
-				let card = new BasicCard();
-				card.effects.push(context => {
-					console.log('can do action');
-				});
-        card.effects.push(() => {
-          cs.drawUntil(5);
-          console.log(cs.store.get('draw'), cs.store.get('hand'));
-        });
+				let card = factory.BasicCard();
+        card.stats.draw = 5;
+        card.stats.drawmin = 3;
+        factory.addCardAction(card, 'drawUntil', 'cardsLessThan');
+        console.log(card);
 				cs.addCardToDeck(card);
 			}
 
-			cs.setDraw();
-			cs.shuffleDraw();
-			cs.drawUntil(5);
-			cs.discardFromHandRandom(1);
-
-			console.log(store);
+			cardStore.setDraw();
+			cardStore.shuffleDraw();
+			cardStore.drawUntil(5);
+			cardStore.discardFromHandRandom(1);
 
 			tokenStore.set('tokens', [{}, {}]);
 

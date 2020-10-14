@@ -10,40 +10,24 @@ export function Stats () {
 export function Card () {
   this.id = 'card_' + id_counter++;
   this.name = "card";
+  this.description = '';
   this.tags = [];
   this.image = new Image();
   this.image.src = 'images/cultist.svg';
   this.stats = {
     cost: 0
   }
-  this.tooltips = [
-    new Tooltip('test', 'test')
-  ];
-  this.effects = [];
-  this.action = (context) => {
-    console.log("action:", this, this.id, this.name);
-    this.effects.forEach(effect => {
-      effect();
-    });
+  this.tips = {};
+  this.actions = {};
+  this.execute = (context) => {
   };
 };
 
 export function UnitCard () {
   let card = new Card();
-  card.action = (context) => {
+  card.execute = (context) => {
     console.log("spawn action", card.unit);
   };
   card.unit = new UnitModel();
   return card;
-}
-
-export function Tooltip (title, content) {
-  return {
-    title: html`
-      <div>${title}:</div>
-    `,
-    content: html`
-      <div>${content}</div>
-    `
-  }
 }

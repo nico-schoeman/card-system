@@ -8,7 +8,7 @@ export class Card extends HTMLElement {
 
 	connectedCallback() {
 		if (!this.data) return;
-    
+
     render(this.template(), this);
 
     if (window.document.getElementById('draw-pile') && this.data.new) this.pullFrom('draw-pile');
@@ -39,10 +39,15 @@ export class Card extends HTMLElement {
 	}
 
   playCard (target) {
-    console.log('play card', target, this.data);
+    let context = {
+      data: this.data,
+      card: this.data.card,
+      target
+    }
+    console.log('play card', context);
     //validate target
     this.data.card_store.discardFromHand([this.data.card]);
-    this.data.card.action();
+    this.data.card.execute(context);
 
     if (window.document.getElementById('discard-pile')) {
       this.pushTo('discard-pile', () => {
@@ -101,17 +106,9 @@ export class Card extends HTMLElement {
 	template = () =>
 		html`
 			${this.style()}
-			${this.data && this.data.card.tooltips
-				? html`
-						<div class="tooltip">
-							${this.data.card.tooltips.map(
-								tip => html`
-									${tip.title} ${tip.content}
-								`,
-							)}
-						</div>
-				  `
-				: ``}
+
+			${this.drawTips()}
+
 			<div
 				id=${this.data.card.id}
 				class="card"
@@ -124,6 +121,23 @@ export class Card extends HTMLElement {
 				<img draggable="false" src=${this.data.card.image.src} />
 			</div>
 		`;
+
+  drawTips () {
+    let tips = Object.keys(this.data.card.tips);
+
+    if (this.data && this.data.card.tips)
+    return html`
+        <div class="tips">
+          ${tips.map(
+            key => {
+              let tip = this.data.card.tips[key];
+              return html`${tip.decorated} ${tip.content}`
+            }
+          )}
+        </div>
+			`;
+    else return ``;
+  }
 
 	style() {
 		return html`

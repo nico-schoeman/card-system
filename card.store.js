@@ -1,6 +1,6 @@
 import DataStore from '@nico-schoeman/data-store';
 
-export default function CardStore() {
+export default function CardStore(collectionStore = null, tipStore = null) {
 	this.store = new DataStore();
 
   this.store.set('deck', []);
@@ -9,6 +9,8 @@ export default function CardStore() {
 	this.store.set('grave', []);
 	this.store.set('hand', []);
   this.store.set('active-card', null);
+  if (collectionStore) this.store.set('collection', collectionStore);
+  if (tipStore) this.store.set('tips', tipStore);
 }
 
 Array.prototype.pickRandom = function() {
