@@ -1,5 +1,6 @@
 import { html, render } from 'lit-html/lit-html.js';
 import { Discard } from './discard';
+import CardSystem from '..';
 
 export class Card extends HTMLElement {
 	constructor() {
@@ -42,12 +43,13 @@ export class Card extends HTMLElement {
     let context = {
       data: this.data,
       card: this.data.card,
-      target
+      target: target.data
     }
     console.log('play card', context);
     //validate target
     this.data.card_store.discardFromHand([this.data.card]);
     this.data.card.execute(context);
+    CardSystem.getInstance().events.TriggerEvent('play-card', context);
 
     if (window.document.getElementById('discard-pile')) {
       this.pushTo('discard-pile', () => {

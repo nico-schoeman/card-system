@@ -10,56 +10,59 @@
 	<body>
 		<script type="module">
 			import { html, render } from 'lit-html/lit-html.js';
-			import { CardStore } from './index.js';
-			import DataStore from '@nico-schoeman/data-store';
-			import CardFactory from './card.factory.js';
+			import CardSystem from './index.js';
 
-			const store = new DataStore();
+      let cardSystem = new CardSystem;
+      console.log(cardSystem);
 
-			let cardStore = new CardStore();
-			let tokenStore = new DataStore();
-
-      store.set('cards', cardStore);
-			store.set('tokens', tokenStore);
-
-      let factory = new CardFactory();
-
-      factory.addAction('drawUntil', (context) => {
-        console.log('drawUntil');
-        cardStore.drawUntil(context.card.stats.draw);
+      cardSystem.factory.addAction('drawUntil', (context) => {
+        cardSystem.cardStore.drawUntil(context.card.stats.draw);
       }, 'DRAW until you have [draw] cards.');
 
-      factory.addCheck('cardsLessThan', (context) => {
-        console.log('cardsLessThan');
-        if (cardStore.selectHand().length < context.card.stats.drawmin) return true;
+      cardSystem.factory.addAction('damage', (context) => {
+        context.target.stats.health -= context.card.stats.damage;
+      }, 'Deal [damage] damage to the target');
+
+      cardSystem.factory.addAction('gain-damage', (context) => {
+        context.card.stats.damage++;
+      }, 'gain damage');
+
+      cardSystem.factory.addCheck('cardsLessThan', (context) => {
+        if (cardSystem.cardStore.selectHand().length < context.card.stats.drawmin) return true;
         return false;
       }, 'if you have less than [drawmin] cards');
 
-      factory.addTip('DRAW', 'draw a card from your draw pile', 'RED');
+      cardSystem.factory.addTrigger('play-card', 'when a card is played');
+
+      cardSystem.factory.addTip('DRAW', 'draw a card from your draw pile', 'RED');
 
 			for (let index = 0; index < 30; index++) {
-				let card = factory.BasicCard();
+				let card = cardSystem.factory.BasicCard();
         card.stats.draw = 5;
         card.stats.drawmin = 3;
-        factory.addCardAction(card, 'drawUntil', 'cardsLessThan');
-        console.log(card);
-				cs.addCardToDeck(card);
+        card.stats.damage = 5;
+        if (Math.random() > 0.5) cardSystem.factory.addCardAction(card, 'drawUntil', 'cardsLessThan');
+        else {
+          cardSystem.factory.addCardAction(card, 'damage');
+          if (Math.random() > 0.5) cardSystem.factory.addCardAction(card, 'gain-damage', null, 'play-card');
+        }
+				cardSystem.cardStore.addCardToDeck(card);
 			}
 
-			cardStore.setDraw();
-			cardStore.shuffleDraw();
-			cardStore.drawUntil(5);
-			cardStore.discardFromHandRandom(1);
+			cardSystem.cardStore.setDraw();
+			cardSystem.cardStore.shuffleDraw();
+			cardSystem.cardStore.drawUntil(5);
+			cardSystem.cardStore.discardFromHandRandom(1);
 
-			tokenStore.set('tokens', [{}, {}]);
+			cardSystem.tokenStore.set('tokens', [cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken()]);
 
 			export class Test extends HTMLElement {
 				connectedCallback() {
 					render(
 						html`
 							<c-deck id="draw-pile"></c-deck>
-							<c-stage .store=${tokenStore}></c-stage>
-							<c-hand .store=${cs}></c-hand>
+							<c-stage .store=${cardSystem.tokenStore}></c-stage>
+							<c-hand .store=${cardSystem.cardStore}></c-hand>
 							<c-discard id="discard-pile"></c-discard>
 						`,
 						this,
