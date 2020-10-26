@@ -1,6 +1,9 @@
 import { html, render } from 'lit-html/lit-html.js';
 import { Discard } from './discard';
+import { SetupDrop } from '../utils';
 import CardSystem from '..';
+
+import './tooltip.js';
 
 export class Card extends HTMLElement {
 	constructor() {
@@ -12,7 +15,7 @@ export class Card extends HTMLElement {
 
     render(this.template(), this);
 
-    if (window.document.getElementById('draw-pile') && this.data.new) this.pullFrom('draw-pile');
+    if (window.document.getElementById('draw-pile') && this.data.new) this.pullFrom(this, 'draw-pile');
 
 		this.addEventListener('animationstart', event => {
       this.classList.remove('ready');
@@ -36,7 +39,6 @@ export class Card extends HTMLElement {
 	}
 
 	disconnectedCallback() {
-		//this.unsubscribe();
 	}
 
   playCard (target) {
@@ -52,11 +54,10 @@ export class Card extends HTMLElement {
     CardSystem.getInstance().events.TriggerEvent('play-card', context);
 
     if (window.document.getElementById('discard-pile')) {
-      this.pushTo('discard-pile', () => {
-        console.log('discard done', this.data.card_store);
+      this.bump(this, 'discard-pile', () => {
+        this.remove();
       });
     }
-    this.remove();
   }
 
 	clicked() {
@@ -67,43 +68,6 @@ export class Card extends HTMLElement {
 		//setActiveCard(this.data);
 		//this.classList.toggle('active');
 	}
-
-  pullFrom (id, callback = null) {
-    let card = this.lastElementChild;
-    let from = window.document.getElementById(id);
-    let cardPos = card.getBoundingClientRect();
-    let fromPos = from.getBoundingClientRect();
-		card.style.top = `${fromPos.top - cardPos.top}px`;
-		card.style.left = `${fromPos.left - cardPos.left}px`;
-    card.classList.add('pull');
-    card.addEventListener('animationend', () => {
-      card.style.top = `0px`;
-      card.style.left = `0px`;
-      card.classList.remove('pull');
-      card.removeEventListener('animationend', this);
-      if (callback) callback();
-    });
-  }
-
-  pushTo (id, callback = null) {
-    let to = window.document.getElementById(id);
-    let toPos = to.getBoundingClientRect();
-    let clone = this.cloneNode(true);
-    let card = clone.lastElementChild;
-    let cardPos = this.lastElementChild.getBoundingClientRect();
-    to.appendChild(clone);
-    card.style.top = `${cardPos.top - toPos.top}px`;
-		card.style.left = `${cardPos.left - toPos.left}px`;
-    card.classList.add('pull');
-    card.addEventListener('animationend', () => {
-      card.style.top = `0px`;
-      card.style.left = `0px`;
-      card.classList.remove('pull');
-      card.removeEventListener('animationend', this);
-      if (callback) callback();
-      clone.remove();
-    });
-  }
 
 	template = () =>
 		html`
@@ -125,18 +89,9 @@ export class Card extends HTMLElement {
 		`;
 
   drawTips () {
-    let tips = Object.keys(this.data.card.tips);
-
     if (this.data && this.data.card.tips)
-    return html`
-        <div class="tips">
-          ${tips.map(
-            key => {
-              let tip = this.data.card.tips[key];
-              return html`${tip.decorated} ${tip.content}`
-            }
-          )}
-        </div>
+      return html`
+        <c-tooltip .tips=${this.data.card.tips}></c-tooltip>
 			`;
     else return ``;
   }
@@ -145,6 +100,8 @@ export class Card extends HTMLElement {
 		return html`
 			<style>
 				c-card {
+          --target-top: 0px;
+          --target-left: 0px;
 					position: relative;
 					transform: rotate(3deg);
 					width: var(--card-width);
@@ -186,16 +143,28 @@ export class Card extends HTMLElement {
 				}
 
         .pull {
-          animation: pull 1s both;
+          animation: move 1s both reverse, fade 1s;
         }
 
-        @keyframes pull {
-          100% {
+        .push {
+          animation: move 1s both, fade 1s reverse;
+        }
+
+        .bump {
+          animation: move 0.3s ease-out alternate 2;
+        }
+
+        @keyframes move {
+          0% {
             top: 0px;
             left: 0px;
           }
+          100% {
+            top: var(--target-top);
+            left: var(--target-left);
+          }
         }
-        @keyframes fade-in {
+        @keyframes fade {
           0% {
             width: 0;
             height: 0;
@@ -203,22 +172,14 @@ export class Card extends HTMLElement {
           100% {
             width: var(--card-width);
             height: var(--card-height);
-          }
-        }
-        @keyframes fade-out {
-          0% {
-            width: var(--card-width);
-            height: var(--card-height);
-          }
-          100% {
-            width: 0;
-            height: 0;
           }
         }
 			</style>
 		`;
 	}
-}
+}// animation: pull 1s both alternate 2;
+//TODO: move anims to shared
+//TODO: bump
 
 if (!customElements.get('c-card')) {
 	customElements.define('c-card', Card);

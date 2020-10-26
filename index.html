@@ -15,36 +15,36 @@
       let cardSystem = new CardSystem;
       console.log(cardSystem);
 
-      cardSystem.factory.addAction('drawUntil', (context) => {
+      cardSystem.setAction('drawUntil', (context) => {
         cardSystem.cardStore.drawUntil(context.card.stats.draw);
       }, 'DRAW until you have [draw] cards.');
 
-      cardSystem.factory.addAction('damage', (context) => {
+      cardSystem.setAction('damage', (context) => {
         context.target.stats.health -= context.card.stats.damage;
       }, 'Deal [damage] damage to the target');
 
-      cardSystem.factory.addAction('gain-damage', (context) => {
+      cardSystem.setAction('gain-damage', (context) => {
         context.card.stats.damage++;
       }, 'gain damage');
 
-      cardSystem.factory.addCheck('cardsLessThan', (context) => {
+      cardSystem.setCheck('cardsLessThan', (context) => {
         if (cardSystem.cardStore.selectHand().length < context.card.stats.drawmin) return true;
         return false;
       }, 'if you have less than [drawmin] cards');
 
-      cardSystem.factory.addTrigger('play-card', 'when a card is played');
+      cardSystem.setTrigger('play-card', 'when a card is played');
 
-      cardSystem.factory.addTip('DRAW', 'draw a card from your draw pile', 'RED');
+      cardSystem.setTip('DRAW', 'draw a card from your draw pile', 'RED');
 
 			for (let index = 0; index < 30; index++) {
 				let card = cardSystem.factory.BasicCard();
         card.stats.draw = 5;
         card.stats.drawmin = 3;
         card.stats.damage = 5;
-        if (Math.random() > 0.5) cardSystem.factory.addCardAction(card, 'drawUntil', 'cardsLessThan');
+        if (Math.random() > 0.5) cardSystem.addAction(card, 'drawUntil', 'cardsLessThan');
         else {
-          cardSystem.factory.addCardAction(card, 'damage');
-          if (Math.random() > 0.5) cardSystem.factory.addCardAction(card, 'gain-damage', null, 'play-card');
+          cardSystem.addAction(card, 'damage');
+          if (Math.random() > 0.5) cardSystem.addAction(card, 'gain-damage', null, 'play-card');
         }
 				cardSystem.cardStore.addCardToDeck(card);
 			}
@@ -54,14 +54,14 @@
 			cardSystem.cardStore.drawUntil(5);
 			cardSystem.cardStore.discardFromHandRandom(1);
 
-			cardSystem.tokenStore.set('tokens', [cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken()]);
+			cardSystem.cardStore.store.set('tokens', [cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken()]);
 
 			export class Test extends HTMLElement {
 				connectedCallback() {
 					render(
 						html`
 							<c-deck id="draw-pile"></c-deck>
-							<c-stage .store=${cardSystem.tokenStore}></c-stage>
+							<c-stage .store=${cardSystem.cardStore}></c-stage>
 							<c-hand .store=${cardSystem.cardStore}></c-hand>
 							<c-discard id="discard-pile"></c-discard>
 						`,

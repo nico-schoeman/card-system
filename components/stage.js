@@ -7,13 +7,13 @@ export class Stage extends HTMLElement {
 	}
 
   init() {
-    this.tokens = this.store.get('tokens');
+    this.tokens = this.store.store.get('tokens');
     render(this.template(), this);
   }
 
 	connectedCallback() {
     this.init();
-    this.unsubscribe = this.store.subscribe(() => {
+    this.unsubscribe = this.store.store.subscribe(() => { //TODO: store.store syntax sucks
 			this.init();
 		}, 'tokens');
 
@@ -52,6 +52,11 @@ export class Stage extends HTMLElement {
           width: 80%;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(10%, max-content));
+        }
+
+        c-stage.drop-over {
+          border: 2px dashed orange;
+          box-shadow: 0 0 1em yellow
         }
       </style>
     `;

@@ -8,6 +8,7 @@ export default function CardStore(collectionStore = null, tipStore = null) {
 	this.store.set('discard', []);
 	this.store.set('grave', []);
 	this.store.set('hand', []);
+  this.store.set('tokens', []);
   this.store.set('active-card', null);
   if (collectionStore) this.store.set('collection', collectionStore);
   if (tipStore) this.store.set('tips', tipStore);

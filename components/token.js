@@ -1,4 +1,5 @@
 import { html, render } from 'lit-html/lit-html.js';
+import { SetupDrop } from '../utils';
 
 export class Token extends HTMLElement {
 	constructor() {
@@ -8,26 +9,11 @@ export class Token extends HTMLElement {
 	connectedCallback() {
 		render(this.template(), this);
 
-    this.addEventListener('dragover', event => {
-      event.preventDefault();
-    });
-    this.addEventListener('dragenter', event => {
-      console.log('dragenter');
-      this.classList.add('drop-over');
-    });
-    this.addEventListener('dragleave', event => {
-      console.log('dragleave');
-      this.classList.remove('drop-over');
-    });
-    this.addEventListener('drop', event => {
-      console.log('drop', event, window.drag_card);
-      this.classList.remove('drop-over');
-      if (window.drag_card) window.drag_card.playCard(this);
-    });
+    this.unsubEvents = SetupDrop(this);
 	}
 
 	disconnectedCallback() {
-		this.unsubscribe();
+		this.unsubEvents();
 	}
 
   template = () =>
