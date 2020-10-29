@@ -16,12 +16,20 @@ export class Discard extends HTMLElement {
   template = () =>
 		html`
       ${this.style()}
-      <h1>Discard</h1>
+      <div>Discard</div>
 		`;
 
   style () {
     return html`
       <style>
+        c-discard div {
+					width: var(--card-width);
+					height: var(--card-height);
+					cursor: pointer;
+					user-select: none;
+          background: gray;
+					border: 2px solid black;
+				}
       </style>
     `;
   }

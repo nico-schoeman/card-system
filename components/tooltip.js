@@ -21,32 +21,29 @@ export class Tooltip extends HTMLElement {
       })}
 		`;
 
-    //TODO: nested tooltips
-
   style () {
     return html`
       <style>
-        /* Tooltip container */
         c-tooltip {
           position: absolute;
           display: inline-block;
-          border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+          border-bottom: 1px dotted black;
           visibility: hidden;
           opacity: 0;
           z-index: 10;
           background-color: black;
           width: 120px;
           bottom: 100%;
+          transition: all 3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Tooltip text */
         c-tooltip .tooltip {
           color: #fff;
           text-align: center;
           padding: 0.3em 0;
           border-radius: 6px;
-          transition: all 3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           z-index: 1;
+          white-space: pre-line;
         }
 
         c-tooltip .tooltip p {
@@ -61,7 +58,7 @@ export class Tooltip extends HTMLElement {
         c-tooltip .tooltip::after {
           content: " ";
           position: absolute;
-          top: 100%; /* At the bottom of the tooltip */
+          top: 100%;
           left: 50%;
           margin-left: -5px;
           border-width: 5px;

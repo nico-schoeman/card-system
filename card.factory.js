@@ -15,6 +15,7 @@ export function Card () {
   this.execute = (context) => {
   };
 };
+//TODO: prompts for card actions (select a target minion...)
 
 export default function CardFactory(system) {
   this.system = system;

@@ -16,12 +16,20 @@ export class Deck extends HTMLElement {
   template = () =>
 		html`
       ${this.style()}
-      <h1>Deck</h1>
+      <div>Deck</div>
 		`;
 
   style () {
     return html`
       <style>
+        c-deck div {
+					width: var(--card-width);
+					height: var(--card-height);
+					cursor: pointer;
+					user-select: none;
+          background: gray;
+					border: 2px solid black;
+				}
       </style>
     `;
   }

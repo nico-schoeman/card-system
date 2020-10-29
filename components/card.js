@@ -73,8 +73,6 @@ export class Card extends HTMLElement {
 		html`
 			${this.style()}
 
-			${this.drawTips()}
-
 			<div
 				id=${this.data.card.id}
 				class="card"
@@ -83,6 +81,7 @@ export class Card extends HTMLElement {
 					this.clicked();
 				}}
 			>
+        ${this.drawTips()}
 				<div class="title">${this.data.card.id}</div>
 				<img draggable="false" src=${this.data.card.image.src} />
 			</div>
