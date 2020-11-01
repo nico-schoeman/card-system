@@ -8,6 +8,7 @@ import './components/hand.js';
 import './components/stage.js';
 import './components/deck.js';
 import './components/discard.js';
+import './components/prompt.js';
 
 export default function CardSystem() {
   if (!CardSystem._instance) {
@@ -65,15 +66,21 @@ CardSystem.prototype.execute = async function (context, trigger = null) {
     });
 
     //if (!result || result == 'error') return;
-    let repeat = context.card.stats.repeat || 1;
-    for (let index = 0; index < repeat; index++) {
-      let canDo = false;
-      if (data.check) canDo = this.checks[data.check].check(context);
-      else canDo = true;
-      if (canDo) {
-        this.actions[action].task(context);
-        this.generateDescription(context.card);
-      }
+    this.doExecute(context, data, action);
+  }
+}
+
+CardSystem.prototype.doExecute = function (context, data, action) {
+  let repeat = context.card.stats.repeat || 1;
+  for (let index = 0; index < repeat; index++) {
+    let canDo = false;
+    if (data.check)
+      canDo = this.checks[data.check].check(context);
+    else
+      canDo = true;
+    if (canDo) {
+      this.actions[action].task(context);
+      this.generateDescription(context.card);
     }
   }
 }
@@ -92,7 +99,7 @@ CardSystem.prototype.addAction = function (card, action, check = null, trigger =
 
   this.generateDescription(card);
 }
-//TODO: update card store subscriptions with updated descriptions
+
 CardSystem.prototype.generateDescription = function (card) {
   card.description = '';
 
@@ -138,4 +145,12 @@ CardSystem.prototype.generateTips = function (card) {
   for(var key in this.tips) {
     if (card.description.includes(key)) card.tips[key] = {key, content: this.tips[key].content, decorated: this.tips[key].decorated};
   }
+}
+
+//TODO: prompt
+CardSystem.prototype.prompt = function () {
+  let prompt = document.createElement("c-prompt");
+  document.body.appendChild(prompt);
+
+  //TODO: filter selection by setting disabled attribute
 }

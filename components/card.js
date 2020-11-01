@@ -1,6 +1,7 @@
 import { html, render } from 'lit-html/lit-html.js';
 import { Discard } from './discard';
 import { SetupDrop } from '../utils';
+import { repeat } from 'lit-html/directives/repeat.js';
 import CardSystem from '..';
 
 import './tooltip.js';
@@ -36,10 +37,24 @@ export class Card extends HTMLElement {
     this.addEventListener('dragend', event => {
       console.log('dragend', this.data.card.id, event);
     });
+
+    this.playCallback = () => {
+      this.updateCard();
+    }
+
+    CardSystem.getInstance().events.AddListener('play-card', this.playCallback);
 	}
 
 	disconnectedCallback() {
+    CardSystem.getInstance().events.RemoveListener('play-card', this.playCallback);
 	}
+
+  updateCard () {
+    let found = this.data.card_store.selectHand().find(card => card.id == this.data.card.id);
+    if (found && found.description != this.data.card.description) {
+      render(this.template(), this);
+    }
+  }
 
   playCard (target) {
     let context = {
@@ -48,7 +63,7 @@ export class Card extends HTMLElement {
       target: target.data
     }
     console.log('play card', context);
-    //validate target
+    //TODO: validate target, define target types
     this.data.card_store.discardFromHand([this.data.card]);
     this.data.card.execute(context);
     CardSystem.getInstance().events.TriggerEvent('play-card', context);
@@ -81,7 +96,13 @@ export class Card extends HTMLElement {
 					this.clicked();
 				}}
 			>
-        ${this.drawTips()}
+        <div class='tips'>
+        ${repeat(
+          Object.values(this.data.card.tips),
+          tip => tip.content,
+          tip => html`<c-tooltip .tip=${tip}></c-tooltip>`,
+        )}
+        </div>
 				<div class="title">${this.data.card.id}</div>
 				<img draggable="false" src=${this.data.card.image.src} />
 			</div>
@@ -90,7 +111,7 @@ export class Card extends HTMLElement {
   drawTips () {
     if (this.data && this.data.card.tips)
       return html`
-        <c-tooltip .tips=${this.data.card.tips}></c-tooltip>
+        <c-tooltip .tips=${this.data.card.tips} .description=${this.data.card.description}></c-tooltip>
 			`;
     else return ``;
   }

@@ -54,6 +54,10 @@ export class Stage extends HTMLElement {
           grid-template-columns: repeat(auto-fit, minmax(10%, max-content));
         }
 
+        c-stage[disabled] c-token {
+          pointer-events: none;
+        }
+
         c-stage.drop-over {
           border: 2px dashed orange;
           box-shadow: 0 0 1em yellow

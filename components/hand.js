@@ -91,6 +91,10 @@ export class Hand extends HTMLElement {
 					grid-template-columns: repeat(auto-fit, minmax(10%, max-content));
 				}
 
+        c-hand[disabled] c-card {
+          pointer-events: none;
+        }
+
 				c-hand c-card.ready:hover .card {
 					transform: scale(1.5) translateY(calc(-1 * var(--hand-height) / 3)) rotate(-3deg);
 					z-index: 1;

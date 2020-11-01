@@ -134,6 +134,15 @@ CardStore.prototype.setActiveCard = function (card) {
   this.store.set('active-card', current&&current.id==card.id? null : card);
 }
 
+CardStore.prototype.forceUpdateAll = function () {
+  this.store.set('deck', [...this.store.get('deck')]);
+	this.store.set('draw', [...this.store.get('draw')]);
+	this.store.set('discard', [...this.store.get('discard')]);
+	this.store.set('grave', [...this.store.get('grave')]);
+	this.store.set('hand', [...this.store.get('hand')]);
+  this.store.set('tokens', [...this.store.get('tokens')]);
+}
+
 CardStore.prototype.selectDeck = function () {
   return this.store.get('deck');
 }
