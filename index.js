@@ -56,21 +56,19 @@ CardSystem.prototype.execute = async function (context, trigger = null) {
     let data = context.card.actions[action];
     if ((trigger && data.trigger != trigger) || (!trigger && data.trigger)) continue;
 
-    let result = null;
-    if (data.prompt)
-    result = await new Promise(async (resolve, reject) => {
-      console.log(data);
-      let selection = await data.prompt();
-      if (selection) resolve(selection);
-      else reject('error');
-    });
+    if (data.prompt) {
+      let selection = await this.prompts[data.prompt].prompt(context);
+      context.target = selection.data;
+      this.doExecute(context, data, action);
+      return;
+    };
 
-    //if (!result || result == 'error') return;
     this.doExecute(context, data, action);
   }
 }
 
 CardSystem.prototype.doExecute = function (context, data, action) {
+  console.log(`do ${action}`, context);
   let repeat = context.card.stats.repeat || 1;
   for (let index = 0; index < repeat; index++) {
     let canDo = false;
@@ -104,37 +102,14 @@ CardSystem.prototype.generateDescription = function (card) {
   card.description = '';
 
   for(let action in card.actions) {
-    let check = card.actions[action].check;
-    let trigger = card.actions[action].trigger;
+    let triggerText = getDescription(this.triggers, card.actions[action].trigger, card);
+    let checkText = getDescription(this.checks, card.actions[action].check, card);
+    let promptText = getDescription(this.prompts, card.actions[action].prompt, card);
+    let actionText = getDescription(this.actions, action, card);
 
-    let triggerText = '';
-    if (trigger) {
-      triggerText = this.triggers[trigger].description;
-      let triggerMatches = triggerText.match(/\[(.*?)\]/gi);
-      if (triggerMatches) triggerMatches.forEach(stat => {
-        stat = stat.replace('[','').replace(']','');
-        triggerText = triggerText.replace(`[${stat}]`, card.stats[stat]);
-      });
-    }
-
-    let checkText = '';
-    if (check) {
-      checkText = this.checks[check].description;
-      let checkMatches = checkText.match(/\[(.*?)\]/gi);
-      if (checkMatches) checkMatches.forEach(stat => {
-        stat = stat.replace('[','').replace(']','');
-        checkText = checkText.replace(`[${stat}]`, card.stats[stat]);
-      });
-    }
-
-    let actionText = this.actions[action].description;
-    let actionMatches = actionText.match(/\[(.*?)\]/gi);
-    if (actionMatches) actionMatches.forEach(stat => {
-      stat = stat.replace('[','').replace(']','');
-      actionText = actionText.replace(`[${stat}]`, card.stats[stat]);
-    });
-    card.description += trigger? `${triggerText}: ` : '';
-    card.description += check ? `${checkText}: ${actionText}\n` : `${actionText}\n`;
+    card.description += triggerText? `${triggerText}: ` : '';
+    card.description += promptText? `${promptText}: ` : '';
+    card.description += checkText ? `${checkText}: ${actionText}\n` : `${actionText}\n`;
   }
 
   this.generateTips(card);
@@ -147,10 +122,43 @@ CardSystem.prototype.generateTips = function (card) {
   }
 }
 
-//TODO: prompt
-CardSystem.prototype.prompt = function () {
+CardSystem.prototype.prompt = async function (selectFromQuery) {
   let prompt = document.createElement("c-prompt");
   document.body.appendChild(prompt);
 
-  //TODO: filter selection by setting disabled attribute
+  let containers = document.querySelectorAll("c-hand, c-stage, c-choice");
+  containers.forEach(item => item.setAttribute('disabled', ''));
+
+  let selectContainer = document.querySelector(selectFromQuery);
+  if (selectContainer) selectContainer.removeAttribute('disabled', '');
+
+  let unsub = null;
+  let selection = await new Promise((resolve, reject) => {
+    let callback = event => {
+      resolve(event.target);
+    };
+
+    selectContainer.addEventListener('click', callback);
+    unsub = () => {
+      selectContainer.removeEventListener('click', callback);
+      containers.forEach(item => item.removeAttribute('disabled', ''));
+      prompt.remove();
+    }
+  });
+
+  unsub();
+  return selection;
+}
+
+function getDescription(array, key, card) {
+  if (!key) return '';
+
+  let text = array[key].description;
+  let matches = text.match(/\[(.*?)\]/gi);
+  if (matches)
+    matches.forEach(stat => {
+      stat = stat.replace('[', '').replace(']', '');
+      text = text.replace(`[${stat}]`, card.stats[stat]);
+    });
+  return text;
 }

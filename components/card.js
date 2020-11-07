@@ -37,6 +37,7 @@ export class Card extends HTMLElement {
     this.addEventListener('dragend', event => {
       console.log('dragend', this.data.card.id, event);
     });
+    //TODO: investigate drop on nearest target
 
     this.playCallback = () => {
       this.updateCard();

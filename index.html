@@ -32,6 +32,10 @@
         return false;
       }, 'if you have less than [drawmin] cards');
 
+      cardSystem.setPrompt('selectTarget', async (context) => {
+        return await cardSystem.prompt('c-stage');
+      }, 'select a target');
+
       cardSystem.setTrigger('play-card', 'when a card is played');
 
       cardSystem.setTip('DRAW', 'draw a card from your draw pile', 'RED');
@@ -41,7 +45,8 @@
         card.stats.draw = 5;
         card.stats.drawmin = 3;
         card.stats.damage = 5;
-        if (Math.random() > 0.5) cardSystem.addAction(card, 'drawUntil', 'cardsLessThan');
+        if (Math.random() < 0.3) cardSystem.addAction(card, 'drawUntil', 'cardsLessThan');
+        else if (Math.random() < 0.6) cardSystem.addAction(card, 'damage', null, null, 'selectTarget');
         else {
           cardSystem.addAction(card, 'damage');
           if (Math.random() > 0.5) cardSystem.addAction(card, 'gain-damage', null, 'play-card');
@@ -56,15 +61,13 @@
 
 			cardSystem.cardStore.store.set('tokens', [cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken()]);
 
-      cardSystem.prompt();
-
 			export class Test extends HTMLElement {
 				connectedCallback() {
 					render(
 						html`
 							<c-deck id="draw-pile"></c-deck>
 							<c-stage .store=${cardSystem.cardStore}></c-stage>
-							<c-hand .store=${cardSystem.cardStore}></c-hand>
+							<c-hand class="container" .store=${cardSystem.cardStore}></c-hand>
 							<c-discard id="discard-pile"></c-discard>
 						`,
 						this,

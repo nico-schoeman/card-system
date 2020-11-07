@@ -10,7 +10,6 @@ export class Prompt extends HTMLElement {
 	}
 
 	disconnectedCallback() {
-		this.unsubscribe();
 	}
 
   template = () =>
@@ -18,7 +17,7 @@ export class Prompt extends HTMLElement {
       ${this.style()}
       <div>prompt</div>
 		`;
-
+//TODO: prompt display
   style () {
     return html`
       <style>

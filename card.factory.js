@@ -1,7 +1,7 @@
 let id_counter = 0;
 
 export function Card () {
-  this.id = 'card_' + id_counter++;
+  this.id = id_counter++;
   this.name = "card";
   this.description = '';
   this.tags = [];
@@ -15,7 +15,6 @@ export function Card () {
   this.execute = (context) => {
   };
 };
-//TODO: prompts for card actions (select a target minion...)
 
 export default function CardFactory(system) {
   this.system = system;
@@ -32,6 +31,7 @@ CardFactory.prototype.BasicCard = function() {
 
 CardFactory.prototype.BasicToken = function() {
   let token = new Card();
+  token.name = 'Token';
 	token.stats.health = 100;
   return token;
 };
