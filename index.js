@@ -48,7 +48,7 @@ CardSystem.prototype.setCheck = function (key, check, description) {
 }
 
 CardSystem.prototype.setTip = function (key, content, color = 'black') {
-  this.tips[key] = {key, content, decorated: html`<b style='color:${color}'>${key}</b>`};
+  this.tips[key] = {key, content, decorated: `<b style='color:${color}'>${key}</b>`};
 }
 
 CardSystem.prototype.execute = async function (context, trigger = null) {
@@ -102,10 +102,10 @@ CardSystem.prototype.generateDescription = function (card) {
   card.description = '';
 
   for(let action in card.actions) {
-    let triggerText = getDescription(this.triggers, card.actions[action].trigger, card);
-    let checkText = getDescription(this.checks, card.actions[action].check, card);
-    let promptText = getDescription(this.prompts, card.actions[action].prompt, card);
-    let actionText = getDescription(this.actions, action, card);
+    let triggerText = this.getDescription(this.triggers, card.actions[action].trigger, card);
+    let checkText = this.getDescription(this.checks, card.actions[action].check, card);
+    let promptText = this.getDescription(this.prompts, card.actions[action].prompt, card);
+    let actionText = this.getDescription(this.actions, action, card);
 
     card.description += triggerText? `${triggerText}: ` : '';
     card.description += promptText? `${promptText}: ` : '';
@@ -117,7 +117,7 @@ CardSystem.prototype.generateDescription = function (card) {
 
 CardSystem.prototype.generateTips = function (card) {
   card.tips['description'] = {key: 'description', content: card.description, decorated: card.name};
-  for(var key in this.tips) {
+  for(let key in this.tips) {
     if (card.description.includes(key)) card.tips[key] = {key, content: this.tips[key].content, decorated: this.tips[key].decorated};
   }
 }
@@ -150,7 +150,7 @@ CardSystem.prototype.prompt = async function (selectFromQuery) {
   return selection;
 }
 
-function getDescription(array, key, card) {
+CardSystem.prototype.getDescription = function (array, key, card) {
   if (!key) return '';
 
   let text = array[key].description;
@@ -160,5 +160,14 @@ function getDescription(array, key, card) {
       stat = stat.replace('[', '').replace(']', '');
       text = text.replace(`[${stat}]`, card.stats[stat]);
     });
+
+  for (let tip in this.tips) {
+    matches = text.match(tip);
+    if (matches)
+      matches.forEach(match => {
+        text = text.replace(tip, this.tips[tip].decorated);
+      });
+  };
+
   return text;
 }

@@ -1,5 +1,4 @@
 import { html, render } from 'lit-html/lit-html.js';
-import { repeat } from 'lit-html/directives/repeat.js';
 
 export class Tooltip extends HTMLElement {
 	constructor() {
@@ -7,14 +6,18 @@ export class Tooltip extends HTMLElement {
 	}
 
 	connectedCallback() {
+    console.log(this.tip);
 		render(this.template(), this);
+    let tooltip = this.querySelector('.tooltip');
+    tooltip.innerHTML += this.tip.decorated;
+    tooltip.innerHTML += `<p>${this.tip.content}</p>`;
 	}
 
   template = () =>
 		html`
       ${this.style()}
 
-      <div class='tooltip'>${this.tip.decorated} <p>${this.tip.content}</p></div>
+      <div class='tooltip'></div>
 		`;
 
   style () {
@@ -23,11 +26,9 @@ export class Tooltip extends HTMLElement {
         .tips {
           position: absolute;
           display: inline-block;
-          border-bottom: 1px dotted black;
           visibility: hidden;
           opacity: 0;
           z-index: 10;
-          background-color: black;
           width: 120px;
           bottom: 100%;
           transition: all 3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -40,6 +41,9 @@ export class Tooltip extends HTMLElement {
           border-radius: 6px;
           z-index: 1;
           white-space: pre-line;
+          background-color: rgba(50, 50, 50, 0.8);
+          margin: 0.2em;
+          font-size: 0.8em;
         }
 
         c-tooltip .tooltip p {
