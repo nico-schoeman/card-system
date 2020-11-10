@@ -58,7 +58,7 @@ export class Stage extends HTMLElement {
           pointer-events: none;
         }
 
-        c-stage.drop-over {
+        c-stage.highlight-hover {
           border: 2px dashed orange;
           box-shadow: 0 0 1em yellow
         }

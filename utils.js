@@ -3,13 +3,13 @@ export function SetupDrop(target) {
 		event.preventDefault();
 	}
   let enter = event => {
-		target.classList.add('drop-over');
+		target.classList.add('highlight-hover');
 	}
   let leave = event => {
-		target.classList.remove('drop-over');
+		target.classList.remove('highlight-hover');
 	}
   let drop = event => {
-		target.classList.remove('drop-over');
+		target.classList.remove('highlight-hover');
 		if (window.drag_card) window.drag_card.playCard(target);
 	}
 

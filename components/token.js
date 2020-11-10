@@ -36,9 +36,17 @@ export class Token extends HTMLElement {
           border-radius: 50%;
 				}
 
-        c-token.drop-over {
+        c-token.highlight-hover {
           border: 2px dashed orange;
-          box-shadow: 0 0 1em yellow
+          box-shadow: 0 0 1em yellow;
+        }
+
+        c-token.highlight-valid, c-token.highlight-prompt {
+          box-shadow: 0 0 1em green;
+        }
+
+        c-token[disabled] {
+          pointer-events: none;
         }
       </style>
     `;

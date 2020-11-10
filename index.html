@@ -33,7 +33,7 @@
       }, 'if you have less than [drawmin] cards');
 
       cardSystem.setPrompt('selectTarget', async (context) => {
-        return await cardSystem.prompt('c-stage');
+        return await cardSystem.prompt('c-token');
       }, 'select a target');
 
       cardSystem.setTrigger('play-card', 'when a card is played');

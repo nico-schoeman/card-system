@@ -10,7 +10,7 @@ export function Card () {
   this.stats = {};
   this.status = {};
   this.tips = {};
-  this.validations = {};
+  this.validation = 'c-token';
   this.actions = {};
   this.execute = (context) => {
   };

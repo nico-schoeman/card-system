@@ -122,15 +122,12 @@ CardSystem.prototype.generateTips = function (card) {
   }
 }
 
-CardSystem.prototype.prompt = async function (selectFromQuery) {
+CardSystem.prototype.prompt = async function (query) {
   let prompt = document.createElement("c-prompt");
   document.body.appendChild(prompt);
 
-  let containers = document.querySelectorAll("c-hand, c-stage, c-choice");
-  containers.forEach(item => item.setAttribute('disabled', ''));
-
-  let selectContainer = document.querySelector(selectFromQuery);
-  if (selectContainer) selectContainer.removeAttribute('disabled', '');
+  let all = document.querySelectorAll("c-card, c-token");
+  all.forEach(item => item.setAttribute('disabled', ''));
 
   let unsub = null;
   let selection = await new Promise((resolve, reject) => {
@@ -138,10 +135,18 @@ CardSystem.prototype.prompt = async function (selectFromQuery) {
       resolve(event.target);
     };
 
-    selectContainer.addEventListener('click', callback);
+    let targets = document.querySelectorAll(query);
+    targets.forEach(item => {
+      item.removeAttribute('disabled', '');
+      item.addEventListener('click', callback);
+      item.classList.add('highlight-prompt')
+    });
     unsub = () => {
-      selectContainer.removeEventListener('click', callback);
-      containers.forEach(item => item.removeAttribute('disabled', ''));
+      targets.forEach(item => {
+        item.removeEventListener('click', callback)
+        item.classList.remove('highlight-prompt')
+      });
+      all.forEach(item => item.removeAttribute('disabled', ''));
       prompt.remove();
     }
   });

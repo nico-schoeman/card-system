@@ -29,6 +29,9 @@ export class Card extends HTMLElement {
     this.addEventListener('dragstart', event => {
       console.log('dragstart', this.data.card.id);
       window.drag_card = this;
+
+      let validTargets = document.querySelectorAll(this.data.card.validation);
+      validTargets.forEach(target => target.classList.add('highlight-valid'));
     });
 
     this.addEventListener('drag', event => {
@@ -36,6 +39,9 @@ export class Card extends HTMLElement {
 
     this.addEventListener('dragend', event => {
       console.log('dragend', this.data.card.id, event);
+
+      let validTargets = document.querySelectorAll(this.data.card.validation);
+      validTargets.forEach(target => target.classList.remove('highlight-valid'));
     });
     //TODO: investigate drop on nearest target
 
@@ -58,6 +64,10 @@ export class Card extends HTMLElement {
   }
 
   playCard (target) {
+    console.log(target);
+
+    if (this.data.card.validation && !target.matches(this.data.card.validation)) return;
+
     let context = {
       data: this.data,
       card: this.data.card,
@@ -162,6 +172,10 @@ export class Card extends HTMLElement {
 					text-align: center;
 					font-size: 25px;
 				}
+
+        c-card[disabled] {
+          pointer-events: none;
+        }
 
         .pull {
           animation: move 1s both reverse, fade 1s;
