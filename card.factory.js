@@ -7,13 +7,12 @@ export function Card () {
   this.tags = [];
   this.image = new Image();
   this.image.src = 'images/cultist.svg';
+  this.stage = ''; //where this card currently is deck/hand/discard
   this.stats = {};
-  this.status = {};
+  this.status = {}; //status effects on this card {effectName: effectValue}
   this.tips = {};
-  this.validation = 'c-token';
+  this.validation = 'c-token'; //the target validation query for this card
   this.actions = {};
-  this.execute = (context) => {
-  };
 };
 
 export default function CardFactory(system) {
@@ -23,9 +22,6 @@ export default function CardFactory(system) {
 CardFactory.prototype.BasicCard = function() {
 	let card = new Card();
   card.stats.cost = 1;
-	card.execute = context => {
-		this.system.execute(context);
-	};
   return card;
 };
 

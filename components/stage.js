@@ -1,4 +1,6 @@
 import { html, render } from 'lit-html/lit-html.js';
+import { SetupDrop } from '../index.js';
+
 import './token.js';
 
 export class Stage extends HTMLElement {
@@ -18,9 +20,12 @@ export class Stage extends HTMLElement {
 		}, 'tokens');
 
 		render(this.template(), this);
+
+    this.unsubEvents = SetupDrop(this);
 	}
 
 	disconnectedCallback() {
+    this.unsubEvents();
 		this.unsubscribe();
 	}
 
@@ -52,6 +57,7 @@ export class Stage extends HTMLElement {
           width: 80%;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(10%, max-content));
+          background: gray;
         }
 
         c-stage[disabled] c-token {

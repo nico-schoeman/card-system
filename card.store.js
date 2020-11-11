@@ -24,11 +24,13 @@ CardStore.prototype.randomCard = function () {
 
 CardStore.prototype.addCardToDeck = function (card) {
   let deck = this.store.get('deck');
+  card.stage = 'deck';
   deck.push(card);
   this.store.set('deck', [...deck]);
 }
 
 CardStore.prototype.setDraw = function(deck = this.store.get('deck')) {
+  deck.forEach(card => card.stage = 'draw');
 	this.store.set('draw', [...deck]);
 }
 
@@ -51,7 +53,9 @@ CardStore.prototype.drawUntil = function (count) {
 
   while (hand.length < count) {
     if (draw.length) {
-      hand.push(draw.pop());
+      let card = draw.pop();
+      card.stage = 'hand';
+      hand.push(card);
     } else {
       break;
     }
@@ -66,8 +70,11 @@ CardStore.prototype.drawAmount = function (amount) {
   let hand = this.store.get('hand');
 
   for (let i = 0; i < amount; i++) {
-    if (draw.length)
-    hand.push(draw.pop());
+    if (draw.length) {
+      let card = draw.pop();
+      card.stage = 'hand';
+      hand.push(card);
+    }
   }
 
   this.store.set('draw', [...draw]);
@@ -79,6 +86,7 @@ CardStore.prototype.discard = function (arrayName, card) {
   let target = this.store.get(arrayName);
 
   target = target.filter(item => item.id != card.id);
+  card.stage = 'discard';
   discard.push(card);
 
   this.store.set('discard', [...discard]);
@@ -87,6 +95,7 @@ CardStore.prototype.discard = function (arrayName, card) {
 
 CardStore.prototype.discardFromHand = function (cards = []) {
   cards.forEach(card => {
+    card.stage = 'discard';
     this.discard('hand', card);
   });
 }
@@ -94,12 +103,15 @@ CardStore.prototype.discardFromHand = function (cards = []) {
 CardStore.prototype.discardFromHandRandom = function (amount) {
   for (let index = 0; index < amount; index++) {
     let hand = this.store.get('hand');
-    this.discard('hand', hand.pickRandom());
+    let card = hand.pickRandom();
+    card.stage = 'discard';
+    this.discard('hand', card);
   }
 }
 
 CardStore.prototype.discardFromDraw = function (cards = []) {
   cards.forEach(card => {
+    card.stage = 'discard';
     this.discard('draw', card);
   });
 }
@@ -107,7 +119,9 @@ CardStore.prototype.discardFromDraw = function (cards = []) {
 CardStore.prototype.discardFromDrawRandom  = function (amount) {
   for (let index = 0; index < amount; index++) {
     let draw = this.store.get('draw');
-    this.discard('draw', draw.pickRandom());
+    let card = draw.pickRandom();
+    card.stage = 'discard';
+    this.discard('draw', card);
   }
 }
 
@@ -116,6 +130,7 @@ CardStore.prototype.refresh = function (arrayName, card) {
   let target = this.store.get(arrayName);
 
   target = target.filter(item => item.id != card.id);
+  card.stage = 'draw';
   draw.push(card);
 
   this.store.set('draw', [...draw]);
@@ -125,6 +140,8 @@ CardStore.prototype.refresh = function (arrayName, card) {
 CardStore.prototype.refreshDrawFromDiscard = function (amount) {
   for (let index = 0; index < amount; index++) {
     let discard = this.store.get('discard');
+    let card = discard.pickRandom();
+    card.stage = 'draw';
     this.refresh('discard', discard.pickRandom());
   }
 }

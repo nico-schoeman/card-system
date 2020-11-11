@@ -1,5 +1,5 @@
 import { html, render } from 'lit-html/lit-html.js';
-import { SetupDrop } from '../utils';
+import { SetupDrop } from '../index.js';
 
 export class Token extends HTMLElement {
 	constructor() {
@@ -19,7 +19,9 @@ export class Token extends HTMLElement {
   template = () =>
 		html`
       ${this.style()}
-      <h1>TOKEN</h1>
+      <div
+      class='token'>
+      </div>
 		`;
 
   style () {
@@ -32,17 +34,31 @@ export class Token extends HTMLElement {
 					transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 					cursor: pointer;
 					user-select: none;
-          border: 2px solid black;
+				}
+
+        .token {
+					position: absolute;
+					background: gray;
+					border: 2px solid black;
           border-radius: 50%;
+					width: var(--token-width);
+					height: var(--token-height);
+					box-shadow: 0 0 1em;
+					transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 				}
 
         c-token.highlight-hover {
-          border: 2px dashed orange;
-          box-shadow: 0 0 1em yellow;
+          border-radius: 50%;
+          border: 4px dashed orange;
+          box-shadow: 0 0 2em yellow
         }
 
-        c-token.highlight-valid, c-token.highlight-prompt {
+        c-token.highlight-valid .token, c-token.highlight-prompt .token {
           box-shadow: 0 0 1em green;
+        }
+
+        c-token .token {
+          pointer-events: none;
         }
 
         c-token[disabled] {

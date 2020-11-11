@@ -1,6 +1,4 @@
 import { html, render } from 'lit-html/lit-html.js';
-import { Discard } from './discard';
-import { SetupDrop } from '../utils';
 import { repeat } from 'lit-html/directives/repeat.js';
 import CardSystem from '..';
 
@@ -45,7 +43,7 @@ export class Card extends HTMLElement {
     });
     //TODO: investigate drop on nearest target
 
-    this.playCallback = () => {
+    this.playCallback = (context) => {
       this.updateCard();
     }
 
@@ -63,7 +61,7 @@ export class Card extends HTMLElement {
     }
   }
 
-  playCard (target) {
+  async playCard (target) {
     console.log(target);
 
     if (this.data.card.validation && !target.matches(this.data.card.validation)) return;
@@ -71,14 +69,15 @@ export class Card extends HTMLElement {
     let context = {
       data: this.data,
       card: this.data.card,
-      target: target.data
+      target: target,
+      targetData: target.data
     }
-    console.log('play card', context);
-    //TODO: validate target, define target types
-    this.data.card_store.discardFromHand([this.data.card]);
-    this.data.card.execute(context);
-    CardSystem.getInstance().events.TriggerEvent('play-card', context);
 
+    this.data.card_store.discardFromHand([this.data.card]);
+    await CardSystem.getInstance().execute(context);
+    //TODO: cancel recover
+    CardSystem.getInstance().events.TriggerEvent('play-card', context);
+    console.log('play card', context);
     if (window.document.getElementById('discard-pile')) {
       this.bump(this, 'discard-pile', () => {
         this.remove();

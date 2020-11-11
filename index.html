@@ -20,7 +20,7 @@
       }, 'DRAW until you have [draw] cards.');
 
       cardSystem.setAction('damage', (context) => {
-        context.target.stats.health -= context.card.stats.damage;
+        context.targetData.stats.health -= context.card.stats.damage;
       }, 'Deal [damage] damage to the target');
 
       cardSystem.setAction('gain-damage', (context) => {
