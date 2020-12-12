@@ -27,6 +27,10 @@
         context.card.stats.damage++;
       }, 'gain damage');
 
+      cardSystem.setAction('get-copy', (context) => {
+        console.log('get-copy', context);
+      }, 'gain damage');
+
       cardSystem.setCheck('cardsLessThan', (context) => {
         if (cardSystem.cardStore.selectHand().length < context.card.stats.drawmin) return true;
         return false;
@@ -35,6 +39,10 @@
       cardSystem.setPrompt('selectTarget', async (context) => {
         return await cardSystem.prompt('c-token');
       }, 'select a target');
+
+      cardSystem.setPrompt('chooseCard', async (context) => {
+        return await cardSystem.choice([{name: 'choice1'}, {name: 'choice2'}, {name: 'choice3'}]);
+      }, 'choose a card to add to your hand');
 
       cardSystem.setTrigger('play-card', 'when a card is played');
 
@@ -45,11 +53,14 @@
         card.stats.draw = 5;
         card.stats.drawmin = 3;
         card.stats.damage = 5;
-        if (Math.random() < 0.3) cardSystem.addAction(card, 'drawUntil', 'cardsLessThan');
-        else if (Math.random() < 0.6) cardSystem.addAction(card, 'damage', null, null, 'selectTarget');
-        else {
+        if (Math.random() < 0.2) cardSystem.addAction(card, 'drawUntil', 'cardsLessThan');
+        else if (Math.random() < 0.3) cardSystem.addAction(card, 'damage', null, null, 'selectTarget');
+        else if (Math.random() < 0.4) {
           cardSystem.addAction(card, 'damage');
           if (Math.random() > 0.5) cardSystem.addAction(card, 'gain-damage', null, 'play-card');
+        }
+        else {
+          cardSystem.addAction(card, 'get-copy', null, null, 'chooseCard');
         }
 				cardSystem.cardStore.addCardToDeck(card);
 			}
@@ -59,14 +70,14 @@
 			cardSystem.cardStore.drawUntil(5);
 			cardSystem.cardStore.discardFromHandRandom(1);
 
-			cardSystem.cardStore.store.set('tokens', [cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken()]);
+			cardSystem.cardStore.set('tokens', [cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken(), cardSystem.factory.BasicToken()]);
 
 			export class Test extends HTMLElement {
 				connectedCallback() {
 					render(
 						html`
-							<c-deck id="draw-pile"></c-deck>
 							<c-stage .store=${cardSystem.cardStore}></c-stage>
+              <c-deck id="draw-pile"></c-deck>
 							<c-hand class="container" .store=${cardSystem.cardStore}></c-hand>
 							<c-discard id="discard-pile"></c-discard>
 						`,

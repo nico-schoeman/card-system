@@ -29,8 +29,8 @@ export class Token extends HTMLElement {
       <style>
         c-token {
 					position: relative;
-					width: var(--token-width);
-					height: var(--token-height);
+					width: 100%;
+					height: 100%;
 					transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 					cursor: pointer;
 					user-select: none;
@@ -47,10 +47,9 @@ export class Token extends HTMLElement {
 					transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 				}
 
-        c-token.highlight-hover {
+        c-token.highlight-hover .token {
           border-radius: 50%;
           border: 4px dashed orange;
-          box-shadow: 0 0 2em yellow
         }
 
         c-token.highlight-valid .token, c-token.highlight-prompt .token {

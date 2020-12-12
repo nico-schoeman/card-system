@@ -12,6 +12,5 @@ export default function CardLog(system) {
   this.system.events.AddListener('play-card', (context) => {
     if (!this.turn[this.turnCount]) this.turn[this.turnCount] = [];
     this.turn[this.turnCount].push(context);
-    console.log(this.turn);
   });
 }

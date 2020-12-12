@@ -1,5 +1,5 @@
-//TODO: choice select, use for discover card, select reward, select starting character?
 import { html, render } from 'lit-html/lit-html.js';
+import { repeat } from 'lit-html/directives/repeat.js';
 
 export class Choice extends HTMLElement {
 	constructor() {
@@ -8,6 +8,7 @@ export class Choice extends HTMLElement {
 
 	connectedCallback() {
 		render(this.template(), this);
+    console.log('render');
 	}
 
 	disconnectedCallback() {
@@ -16,7 +17,13 @@ export class Choice extends HTMLElement {
   template = () =>
 		html`
       ${this.style()}
-      <div>choice</div>
+      ${repeat(
+				this.choices,
+				choice => choice.name,
+				choice => html`
+					<div>${choice.name}</div>
+				`,
+			)}
 		`;
 //TODO: choice display
   style () {

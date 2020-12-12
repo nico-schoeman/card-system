@@ -9,13 +9,13 @@ export class Stage extends HTMLElement {
 	}
 
   init() {
-    this.tokens = this.store.store.get('tokens');
+    this.tokens = this.store.get('tokens');
     render(this.template(), this);
   }
 
 	connectedCallback() {
     this.init();
-    this.unsubscribe = this.store.store.subscribe(() => { //TODO: store.store syntax sucks
+    this.unsubscribe = this.store.subscribe(() => {
 			this.init();
 		}, 'tokens');
 
@@ -49,14 +49,14 @@ export class Stage extends HTMLElement {
         c-stage {
           --token-width: 20vh;
           --token-height: calc(20vh * 1.25);
-          --stage-height: var(--token-height);
+          --stage-height: 70vh;
           justify-items: center;
           justify-content: center;
           align-self: flex-end;
           height: var(--stage-height);
           width: 80%;
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(10%, max-content));
+          grid-template-columns: repeat(auto-fit, minmax(var(--token-width), max-content));
           background: gray;
         }
 

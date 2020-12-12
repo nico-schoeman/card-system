@@ -31,8 +31,29 @@ export class Card extends HTMLElement {
       let validTargets = document.querySelectorAll(this.data.card.validation);
       validTargets.forEach(target => target.classList.add('highlight-valid'));
     });
+//TODO: only target nearest when in range, not when in hand area
+    this.addEventListener('drag', event => { //TODO: finish closest target and clean up
+      let validTargets = document.querySelectorAll(this.data.card.validation);
+      let closestTarget = null;
+      let closestDistance = Number.MAX_SAFE_INTEGER;
+      validTargets.forEach(target => {
+        if (target.matches(this.data.card.validation)) {
+          let pos = target.getBoundingClientRect();
+          let top = event.screenY - (pos.top + (pos.height / 2));
+          let left = event.screenX - (pos.left + (pos.width / 2));
+          let distance = Math.hypot(top,left)
+          if (distance < closestDistance) {
+            closestTarget = target;
+            closestDistance = distance;
+          }
+        }
+      });
 
-    this.addEventListener('drag', event => {
+      if (window.closestDragTarget && closestTarget != window.closestDragTarget) {
+        window.closestDragTarget.dispatchEvent(new Event('dragleave'));
+      }
+      window.closestDragTarget = closestTarget;
+      window.closestDragTarget.dispatchEvent(new Event('dragenter'));
     });
 
     this.addEventListener('dragend', event => {
@@ -40,8 +61,9 @@ export class Card extends HTMLElement {
 
       let validTargets = document.querySelectorAll(this.data.card.validation);
       validTargets.forEach(target => target.classList.remove('highlight-valid'));
+
+      window.closestDragTarget.dispatchEvent(new Event('nearest-drop'));
     });
-    //TODO: investigate drop on nearest target
 
     this.playCallback = (context) => {
       this.updateCard();
@@ -61,9 +83,7 @@ export class Card extends HTMLElement {
     }
   }
 
-  async playCard (target) {
-    console.log(target);
-
+  async playCard (target, event) {
     if (this.data.card.validation && !target.matches(this.data.card.validation)) return;
 
     let context = {
@@ -77,9 +97,8 @@ export class Card extends HTMLElement {
     await CardSystem.getInstance().execute(context);
     //TODO: cancel recover
     CardSystem.getInstance().events.TriggerEvent('play-card', context);
-    console.log('play card', context);
     if (window.document.getElementById('discard-pile')) {
-      this.bump(this, 'discard-pile', () => {
+      this.pushTo(this, 'discard-pile', () => {
         this.remove();
       });
     }

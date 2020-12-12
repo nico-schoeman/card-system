@@ -1,4 +1,3 @@
-import { html } from 'lit-html';
 import DataStore from '@nico-schoeman/data-store';
 import EventManager from '@nico-schoeman/event-bus/event-manager.js';
 import CardFactory from './card.factory.js';
@@ -10,6 +9,7 @@ import './components/stage.js';
 import './components/deck.js';
 import './components/discard.js';
 import './components/prompt.js';
+import './components/choice.js';
 
 export default function CardSystem() {
   if (!CardSystem._instance) {
@@ -53,7 +53,16 @@ CardSystem.prototype.setTip = function (key, content, color = 'black') {
   this.tips[key] = {key, content, decorated: `<b style='color:${color}'>${key}</b>`};
 }
 
+CardSystem.prototype.generateGUID = function () {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+
 CardSystem.prototype.execute = async function (context, trigger = null) {
+  context.guid = this.generateGUID();
   for(let action in context.card.actions) {
     let data = context.card.actions[action];
     if ((trigger && data.trigger != trigger) || (!trigger && data.trigger)) continue;
@@ -158,6 +167,40 @@ CardSystem.prototype.prompt = async function (query) {
   return selection;
 }
 
+CardSystem.prototype.choice = async function (choices) {
+  let all = document.querySelectorAll("c-card, c-token");
+  all.forEach(item => item.setAttribute('disabled', ''));
+
+  let choice = document.createElement("c-choice");
+  choice.choices = choices;
+  document.body.appendChild(choice);
+
+  let unsub = null;
+  let selection = await new Promise((resolve, reject) => {
+    let callback = event => {
+      resolve(event.target);
+    };
+
+    let targets = document.querySelectorAll("c-choice c-card, c-choice c-token, c-choice div");
+    console.log(targets);
+    targets.forEach(item => {
+      item.addEventListener('click', callback);
+      item.classList.add('highlight-prompt')
+    });
+    unsub = () => {
+      targets.forEach(item => {
+        item.removeEventListener('click', callback)
+        item.classList.remove('highlight-prompt')
+      });
+      all.forEach(item => item.removeAttribute('disabled', ''));
+      choice.remove();
+    }
+  });
+
+  unsub();
+  return selection;
+}
+
 CardSystem.prototype.getDescription = function (array, key, card) {
   if (!key) return '';
 
@@ -185,7 +228,7 @@ export function SetupDrop(target) {
 		event.preventDefault();
 	}
   let enter = event => {
-    if (target.matches(window.drag_card.data.card.validation))
+    if (window.drag_card && target.matches(window.drag_card.data.card.validation))
 		target.classList.add('highlight-hover');
 	}
   let leave = event => {
@@ -193,13 +236,14 @@ export function SetupDrop(target) {
 	}
   let drop = event => {
 		target.classList.remove('highlight-hover');
-		if (window.drag_card) window.drag_card.playCard(target);
+		if (window.drag_card && target.matches(window.drag_card.data.card.validation)) window.drag_card.playCard(target, event);
 	}
 
 	target.addEventListener('dragover', over);
 	target.addEventListener('dragenter', enter);
 	target.addEventListener('dragleave', leave);
-	target.addEventListener('drop', drop);
+	//target.addEventListener('drop', drop);
+  target.addEventListener('nearest-drop', drop);
 
   return () => {
     target.removeEventListener('dragover', over);

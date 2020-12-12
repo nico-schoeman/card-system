@@ -43,7 +43,7 @@ export class Hand extends HTMLElement {
 
 	connectedCallback() {
 		this.init();
-		this.unsubscribe = this.store.store.subscribe(() => {
+		this.unsubscribe = this.store.subscribe(() => {
 			this.init();
 		}, 'hand');
 
